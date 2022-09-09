@@ -34,7 +34,7 @@ def dig_fun(v: int, amplitude: float, t: np.ndarray) -> np.ndarray:
     i: int = 1
     ft_current: np.ndarray = np.sin(0)
     a: np.ndarray = 4 * amplitude / np.pi
-    fourier_series_expansions_amount = 2000
+    fourier_series_expansions_amount: int = 2000
     while i < fourier_series_expansions_amount:
         ft_current += 1 / i * np.sin(i * omega(v) * t)
         i += 2
