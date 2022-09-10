@@ -30,12 +30,8 @@ def a1(t, n, v, amplitude):
 
 
 def a2(t, n, v, amplitude):
-    i: int = 1
-    ft_current: float = 0
-    while i < FOURIER_SERIES_EXPANSIONS_AMOUNT:
-        ft_current += 1 / i * np.sin(i * omega(v) * t)
-        i += 2
-    return amplitude * math.cos(n * 2 * math.pi * v * t) * ft_current
+    return amplitude * math.cos(n * 2 * math.pi * v * t) * amplitude * (math.sin(2 * math.pi * v * 1 / v / 4))\
+           / (2 * math.pi * v / 2) * 1 / v
 
 
 def period(v: int):
@@ -47,7 +43,7 @@ def omega(v: int) -> float:
 
 
 def omega_n(v: int, n: int) -> float:
-    return 2 * n * math.pi / (1 / v)
+    return 2 * n * math.pi / period(v)
 
 
 def harm_fun(v: int, fi: float, amplitude: float, t: np.ndarray) -> np.ndarray:
@@ -104,7 +100,7 @@ def draw_graphs(v1: int, v2: int, v3: int, v4: int, fi: float, amplitude: float,
 
 
 def draw_specters(v1: int, v2: int, v3: int, v4: int, amplitude: float, gr):
-    n: np.ndarray = np.arange(0, 20, 1)
+    n: np.ndarray = np.arange(1, 20, 1)
     na: list = [harm_spectre(amplitude, v1, len(n)), harm_spectre(amplitude, v2, len(n)),
                 harm_spectre(amplitude, v3, len(n)), harm_spectre(amplitude, v4, len(n))]
     left_col_iteration: float = 0
@@ -115,7 +111,7 @@ def draw_specters(v1: int, v2: int, v3: int, v4: int, amplitude: float, gr):
 
 
 def draw_dig_specters(v1: int, v2: int, v3: int, v4: int, amplitude: float, gr):
-    n: np.ndarray = np.arange(0, 20, 1)
+    n: np.ndarray = np.arange(1, 20, 1)
     na: list = [dig_spectre(amplitude, v1, len(n)), dig_spectre(amplitude, v2, len(n)),
                 dig_spectre(amplitude, v3, len(n)), dig_spectre(amplitude, v4, len(n))]
     na_len: int = len(na)
