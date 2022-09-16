@@ -3,7 +3,6 @@ import math
 import numpy
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import integrate
 
 V1: int = 1
 V2: int = 2
@@ -18,7 +17,7 @@ GRAPH_W: float = 0.2
 GRAPH_H: float = 0.2
 BOTTOM_MARGIN: float = 0.78
 START_MARGIN: float = 0.04
-BAR_THICKNESS: float = 0.3
+BAR_THICKNESS: float = 0.1
 
 START_CORDS: int = 0
 END_CORDS: int = 2
@@ -28,6 +27,7 @@ HARMONICS_STEP = 1
 
 
 # Secondary functions #
+
 
 def a1(t, n, v, amplitude):
     return amplitude * math.cos(2 * math.pi * v * t) * math.cos(n * 2 * math.pi * v * t)
@@ -72,15 +72,6 @@ def dig_fun(v: int, amplitude: float, t: np.ndarray) -> np.ndarray:
 # Spectres #
 
 
-def harm_spectre(amplitude: float, v: int, n: int) -> np.ndarray:
-    points_array: np.ndarray = np.empty(n)
-    i: int = 0
-    while i < n:
-        points_array[i] = 2 / period(v) * integrate.quad(a1, - period(v) / 2, period(v) / 2, args=(i, v, amplitude))[0]
-        i += 1
-    return points_array
-
-
 def dig_spectre(amplitude: float, v: int, n: int) -> np.ndarray:
     points_array: np.ndarray = np.empty(n)
     for i in range(n):
@@ -97,8 +88,7 @@ def draw_graphs(v1: int, v2: int, v3: int, v4: int, fi: float, amplitude: float,
                 gr) -> None:
     fun_array = [[harm_fun(v1, fi, amplitude, t), harm_fun(v2, fi, amplitude, t),
                   harm_fun(v3, fi, amplitude, t), harm_fun(v4, fi, amplitude, t)],
-                 [harm_spectre(amplitude, v1, len(harm)), harm_spectre(amplitude, v2, len(harm)),
-                  harm_spectre(amplitude, v3, len(harm)), harm_spectre(amplitude, v4, len(harm))],
+                 [v1, v2, v3, v4],
                  [dig_fun(v1, amplitude, t), dig_fun(v2, amplitude, t),
                   dig_fun(v3, amplitude, t), dig_fun(v4, amplitude, t)],
                  [dig_spectre(amplitude, v1, len(harm)), dig_spectre(amplitude, v2, len(harm)),
@@ -115,7 +105,10 @@ def draw_graphs(v1: int, v2: int, v3: int, v4: int, fi: float, amplitude: float,
             bottom_iteration += 0.25
             if i == 0 or i == 2:
                 plt.plot(t, fun_array[i][j])
-            if i == 1 or i == 3:
+            if i == 1:
+                temp_arr = [[(fun_array[1][j]), (fun_array[1][j])], [0, amplitude]]
+                plt.plot(temp_arr[0], temp_arr[1])
+            if i == 3:
                 plt.bar(harm, fun_array[i][j], width=BAR_THICKNESS)
 
 
