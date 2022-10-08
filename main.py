@@ -1,6 +1,5 @@
 import math
 
-import numpy
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -11,6 +10,7 @@ V4: int = 8
 FI: float = 0
 AMPLITUDE: float = 1.0
 FOURIER_SERIES_EXPANSIONS_AMOUNT = 2000
+N = 40
 
 SCREEN_SIZE: int = 10
 GRAPH_W: float = 0.2
@@ -34,11 +34,15 @@ def a1(t, n, v, amplitude):
 
 
 def a2(n, v, amplitude):
-    return np.abs(amplitude * ((numpy.sin(math.pi * math.pi * n * v)) / (math.pi * math.pi * n * v)))
+    return ((amplitude * (period(v) / 2)) / period(v)) * np.sin(omega_n(v, n) * period(v) / 2) / (omega_n(v, n) * period(v) / 2)
 
 
 def period(v: int):
     return 1 / v
+
+
+def q(v):
+    return period(v) / (period(v) / 2)
 
 
 def omega(v: int) -> float:
@@ -46,7 +50,7 @@ def omega(v: int) -> float:
 
 
 def omega_n(v: int, n: int) -> float:
-    return 2 * n * math.pi / period(v)
+    return 2 * n * math.pi / (period(v) / 2)
 
 
 # Main functions #
@@ -71,15 +75,26 @@ def dig_fun(v: int, amplitude: float, t: np.ndarray) -> np.ndarray:
 
 # Spectres #
 
+def meander_x(v) -> np.ndarray:
+    x: np.ndarray = np.empty(N + 1)
+    for i in range(N + 1):
+        n = i + 1
+        x[i] = n * v
+    return x
 
-def dig_spectre(amplitude: float, v: int, n: int) -> np.ndarray:
-    points_array: np.ndarray = np.empty(n)
-    for i in range(n):
-        if i == 0:
-            continue
-        points_array[i] = a2(i, v, amplitude)
-    return points_array
 
+def meander_y(v, amplitude) -> np.ndarray:
+    t = 1 / v
+    t_i = t / 2
+    x: np.ndarray = np.empty(N + 1)
+    y: np.ndarray = np.empty(N + 1)
+    i = 0
+    while i < N + 1:
+        n = i + 1
+        x[i] = n * v
+        y[i] = (math.pi * amplitude * t_i / t) * np.abs(np.sin(n * omega(v) * t_i / 2) / (n * omega(v) * t_i / 2))
+        i += 1
+    return y
 
 # Drawing Graphs #
 
@@ -91,8 +106,9 @@ def draw_graphs(v1: int, v2: int, v3: int, v4: int, fi: float, amplitude: float,
                  [v1, v2, v3, v4],
                  [dig_fun(v1, amplitude, t), dig_fun(v2, amplitude, t),
                   dig_fun(v3, amplitude, t), dig_fun(v4, amplitude, t)],
-                 [dig_spectre(amplitude, v1, len(harm)), dig_spectre(amplitude, v2, len(harm)),
-                  dig_spectre(amplitude, v3, len(harm)), dig_spectre(amplitude, v4, len(harm))]]
+                 [meander_y(v1, amplitude), meander_y(v2, amplitude),
+                  meander_y(v3, amplitude), meander_y(v4, amplitude)]]
+    harmonics_array = [meander_x(v1), meander_x(v2), meander_x(v3), meander_x(v4)]
 
     bottom_iteration: float = 0
     right_col_iteration: float = 0
@@ -108,8 +124,11 @@ def draw_graphs(v1: int, v2: int, v3: int, v4: int, fi: float, amplitude: float,
             if i == 1:
                 temp_arr = [[(fun_array[1][j]), (fun_array[1][j])], [0, amplitude]]
                 plt.plot(temp_arr[0], temp_arr[1])
+                plt.xlim(0, 15)
             if i == 3:
-                plt.bar(harm, fun_array[i][j], width=BAR_THICKNESS)
+                plt.bar(harmonics_array[j], fun_array[3][j], 0.2)
+                plt.xlim(0, 40)
+
 
 
 # Main function #
@@ -119,7 +138,7 @@ def main() -> None:
     gr = plt.figure()
     plt.gcf().set_size_inches(SCREEN_SIZE, SCREEN_SIZE)
     t: np.ndarray = np.arange(START_CORDS, END_CORDS, STEP)
-    harm: np.ndarray = np.arange(START_CORDS, HARMONICS_AMOUNT, HARMONICS_STEP)
+    harm: np.ndarray = np.arange(0, N + 1, 1)
     draw_graphs(V1, V2, V3, V4, FI, AMPLITUDE, t, harm, gr)
     plt.show()
 
