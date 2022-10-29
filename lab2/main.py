@@ -64,11 +64,14 @@ def phase_modulation(amplitude: int, m: float, carrier_freq: int, inf_freq: int,
     return res
 
 
-def main() -> None:
-    t: np.ndarray = np.linspace(START_CORDS, END_CORDS, POINTS_AMOUNT)
-    amp_sig = amplitude_modulate(AMPLITUDE, CARRIER_FREQUENCY, INFORMATIONAL_FREQUENCY, t)
-    fm_sig = frequency_modulation(AMPLITUDE, CARRIER_FREQUENCY, INFORMATIONAL_FREQUENCY, t)
-    ph_sig = phase_modulation(AMPLITUDE, MODULATION_COEFFICIENT, CARRIER_FREQUENCY, INFORMATIONAL_FREQUENCY, t)
+def main(amplitude: int = AMPLITUDE, carrier_frequency: int = CARRIER_FREQUENCY,
+         informational_frequency: int = INFORMATIONAL_FREQUENCY, modulation_coefficient: float = MODULATION_COEFFICIENT,
+         start_cords: int = START_CORDS, end_cords: int = END_CORDS, points_amount: int = POINTS_AMOUNT
+         ) -> None:
+    t: np.ndarray = np.linspace(start_cords, end_cords, points_amount)
+    amp_sig = amplitude_modulate(amplitude, carrier_frequency, informational_frequency, t)
+    fm_sig = frequency_modulation(amplitude, carrier_frequency, informational_frequency, t)
+    ph_sig = phase_modulation(amplitude, modulation_coefficient, carrier_frequency, informational_frequency, t)
 
     plt.title('Amplitude')
     plt.plot(t, amp_sig)
