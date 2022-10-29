@@ -2,6 +2,7 @@ import math
 
 import numpy as np
 import matplotlib.pyplot as plt
+import scipy
 
 AMPLITUDE: int = 1
 CARRIER_FREQUENCY: int = 80
@@ -21,6 +22,9 @@ POINTS_AMOUNT: int = 1000
 MODULATION_COEFFICIENT: float = 1.0
 
 
+######################
+# Secondary functions#
+######################
 def omega(freq: int) -> float:
     return 2 * math.pi * freq
 
@@ -37,11 +41,14 @@ def informational_signal(amplitude: int, inf_freq: int, t: np.ndarray) -> np.nda
     return meandr_sig
 
 
+###############
+# Modulations #
+###############
 def amplitude_modulate(amplitude: int, carrier_freq: int, inf_freq: int, t: np.ndarray) -> np.ndarray:
     return informational_signal(amplitude, inf_freq, t) * carrier_signal(amplitude, carrier_freq, t)
 
 
-def frequency_modulation(amplitude: int, car_freq: int, inf_freq: int, t: np.ndarray):
+def frequency_modulation(amplitude: int, car_freq: int, inf_freq: int, t: np.ndarray) -> np.ndarray:
     t_size = t.size
     ft_inf = informational_signal(amplitude, inf_freq, t)
     ft_end = np.zeros(t_size)
@@ -53,7 +60,7 @@ def frequency_modulation(amplitude: int, car_freq: int, inf_freq: int, t: np.nda
     return ft_end
 
 
-def phase_modulation(amplitude: int, m: float, carrier_freq: int, inf_freq: int, t: np.ndarray):
+def phase_modulation(amplitude: int, m: float, carrier_freq: int, inf_freq: int, t: np.ndarray) -> np.ndarray:
     carrier_ft = carrier_signal(amplitude, carrier_freq, t)
     inf_ft = informational_signal(amplitude, inf_freq, t)
     res = np.zeros(carrier_ft.size)
@@ -64,25 +71,51 @@ def phase_modulation(amplitude: int, m: float, carrier_freq: int, inf_freq: int,
     return res
 
 
+############
+# Specters #
+############
+
+
+def any_modulation_spectre(fun: np.ndarray, points_amount: int) -> np.ndarray:
+    return np.abs(scipy.fft.fft(fun)) / (points_amount / 2)
+
+
 def main(amplitude: int = AMPLITUDE, carrier_frequency: int = CARRIER_FREQUENCY,
          informational_frequency: int = INFORMATIONAL_FREQUENCY, modulation_coefficient: float = MODULATION_COEFFICIENT,
          start_cords: int = START_CORDS, end_cords: int = END_CORDS, points_amount: int = POINTS_AMOUNT
          ) -> None:
     t: np.ndarray = np.linspace(start_cords, end_cords, points_amount)
-    amp_sig = amplitude_modulate(amplitude, carrier_frequency, informational_frequency, t)
-    fm_sig = frequency_modulation(amplitude, carrier_frequency, informational_frequency, t)
-    ph_sig = phase_modulation(amplitude, modulation_coefficient, carrier_frequency, informational_frequency, t)
+    amp_mod_sig: np.ndarray = amplitude_modulate(amplitude, carrier_frequency, informational_frequency, t)
+    fr_mod_sig: np.ndarray = frequency_modulation(amplitude, carrier_frequency, informational_frequency, t)
+    ph_mod_sig: np.ndarray = phase_modulation(amplitude, modulation_coefficient, carrier_frequency, informational_frequency, t)
+    amp_mod_spectre: np.ndarray = any_modulation_spectre(amp_mod_sig, points_amount)
+    fr_mod_spectre: np.ndarray = any_modulation_spectre(fr_mod_sig, points_amount)
+    ph_mod_spectre: np.ndarray = any_modulation_spectre(ph_mod_sig, points_amount)
 
     plt.title('Amplitude')
-    plt.plot(t, amp_sig)
+    plt.plot(t, amp_mod_sig)
     plt.show()
 
     plt.title('Freq')
-    plt.plot(t, fm_sig)
+    plt.plot(t, fr_mod_sig)
     plt.show()
 
     plt.title('Phase')
-    plt.plot(t, ph_sig)
+    plt.plot(t, ph_mod_sig)
+    plt.show()
+
+    ######################
+
+    plt.title('Amplitude')
+    plt.plot(t, amp_mod_spectre)
+    plt.show()
+
+    plt.title('Freq')
+    plt.plot(t, fr_mod_spectre)
+    plt.show()
+
+    plt.title('Phase')
+    plt.plot(t, ph_mod_spectre)
     plt.show()
 
 
